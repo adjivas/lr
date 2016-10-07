@@ -1,0 +1,27 @@
+use std::str::FromStr;
+use util;
+
+grammar;
+
+pub Screen: util::Screen = {
+    <start:Alphanum?> "<^[[" <x:Num> ";" <y:Num> r"H{1}" <end:Screen?> => {
+      // abcdefghijklmnop<^[[1;1Haaaaa
+      // abcdefghijklmnop<^[[1;1HAaaaa
+      let mut start = start.unwrap_or_default();
+
+      start.goto(x, y);
+      if let Some(end) = end {
+        start.clone_from(&end);
+      }
+      start
+    },
+    Alphanum,
+};
+
+Alphanum: util::Screen = {
+    r"[:alnum:]+" => util::Screen::new(String::from_str(<>).unwrap().into_bytes() ),
+};
+
+Num: u64 = {
+    r"[0-9]+" => u64::from_str(<>).unwrap()
+};
