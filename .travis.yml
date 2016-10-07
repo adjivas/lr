@@ -2,8 +2,6 @@ sudo: false
 language: rust
 rust: 
   - nightly
-  - stable
-  - beta
 
 branches:
   except:
@@ -24,7 +22,6 @@ cache:
 
 os:
   - linux
-  - osx
 
 script:
   - cargo build --verbose
