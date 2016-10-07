@@ -4,10 +4,11 @@ use util;
 grammar;
 
 pub Screen: util::Screen = {
-    <start:Alphanum?> "<^[[" <x:Num> ";" <y:Num> "H" <end:Screen?> => {
+    <start:Alphanum?> <xy:Goto> <end:Screen?> => {
       // abcdefghijklmnop<^[[1;1Haaaaa
       // abcdefghijklmnop<^[[1;1HAaaaa
       let mut start = start.unwrap_or_default();
+      let (x, y) = xy;
 
       start.goto(x, y);
       if let Some(end) = end {
@@ -22,7 +23,8 @@ Alphanum: util::Screen = {
     r"[a-zA-Z]+" => util::Screen::new(String::from_str(<>).unwrap().into_bytes() ),
 };
 
+Goto: (u64, u64) = {"<^[[" <x:Num> ";" <y:Num> "H" => {(x, y)}};
+
 Num: u64 = {
     r"[0-9]+" => u64::from_str(<>).unwrap()
 };
-
