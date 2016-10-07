@@ -4,13 +4,12 @@ use util;
 grammar;
 
 pub Screen: util::Screen = {
-    <start:Alphanum?> <xy:Goto> <end:Screen?> => {
+    <start:Alphanum?> <xy:XY> <end:Screen?> => {
       // abcdefghijklmnop<^[[1;1Haaaaa
       // abcdefghijklmnop<^[[1;1HAaaaa
       let mut start = start.unwrap_or_default();
-      let (x, y) = xy;
 
-      start.goto(x, y);
+      start.goto(xy.0, xy.1);
       if let Some(end) = end {
         start.clone_from(&end);
       }
@@ -23,8 +22,9 @@ Alphanum: util::Screen = {
     r"[a-zA-Z]+" => util::Screen::new(String::from_str(<>).unwrap().into_bytes() ),
 };
 
-Goto: (u64, u64) = {"<^[[" <x:Num> ";" <y:Num> "H" => {(x, y)}};
+XY: (u64, u64) = {"<^[[" <x:Num> ";" <y:Num> "H"? => {(x, y)}};
 
 Num: u64 = {
     r"[0-9]+" => u64::from_str(<>).unwrap()
 };
+

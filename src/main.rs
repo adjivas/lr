@@ -5,5 +5,5 @@ fn main() {
 
     let input_line = String::from("abcdefghijklmnop<^[[1;1Haaaaa");
         
-    assert!(lr::parse_Screen(&input_line.to_string()).is_ok());
+    println!("{:?}", lr::parse_Screen(&input_line.to_string()) );
 }
