@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use util;
 
 grammar;
@@ -8,8 +7,9 @@ pub Screen: util::Screen = {
       // abcdefghijklmnop<^[[1;1Haaaaa
       // abcdefghijklmnop<^[[1;1HAaaaa
       let mut start = start.unwrap_or_default();
+      let (x, y) = xy;
 
-      start.goto(xy.0, xy.1);
+      start.goto(x, y);
       if let Some(end) = end {
         start.clone_from(&end);
       }
@@ -18,13 +18,35 @@ pub Screen: util::Screen = {
     Alphanum,
 };
 
-Alphanum: util::Screen = {
-    r"[a-zA-Z]+" => util::Screen::new(String::from_str(<>).unwrap().into_bytes() ),
+Alphanum: util::Screen = Alphanumbytes => util::Screen::new(<>);
+
+Alphanumbytes: Vec<u8> = {
+      <a:Num> <b:Alpha> <c:Alphanumbytes?> => {
+        let mut v = vec![];
+
+        v.extend(a.bytes());
+        v.extend(b.bytes());
+        if let Some(end) = c {
+          v.extend(end);
+        }
+        v
+      },
+      <a:Alpha> <b:Num> <c:Alphanumbytes?> => {
+        let mut v = vec![];
+
+        v.extend(a.bytes());
+        v.extend(b.bytes());
+        if let Some(end) = c {
+          v.extend(end);
+        }
+        v
+      },
+      Num => <>.bytes().collect(),
+      Alpha => <>.bytes().collect(),
 };
 
-XY: (u64, u64) = {"<^[[" <x:Num> ";" <y:Num> "H"? => {(x, y)}};
+XY: (u64, u64) = "<^[[" <x:Num> ";" <y:Num> "H"? => (x.parse().unwrap(), y.parse().unwrap());
 
-Num: u64 = {
-    r"[0-9]+" => u64::from_str(<>).unwrap()
-};
+Alpha = r"[\x40-\xffff]+";
 
+Num = r"[\x30-\x39]+";
