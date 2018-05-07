@@ -16,6 +16,7 @@ pub enum LexicalError {
     // Not possible
 }
 
+#[derive(Debug)]
 pub struct Lexer<'input> {
     chars: CharIndices<'input>,
 }
