@@ -1,13 +1,8 @@
-pub mod lr; // synthesized by LALRPOP
-pub mod util;
+pub mod lexer;
+pub mod ast;
+pub mod parser; // synthesized by LALRPOP
 
 fn main() {
-
-    let input_line = String::from("abcdefghijklmnop<^[[1;1Haaaaa");
-        
-    println!("{:?}", lr::parse_Screen(&input_line.to_string()) );
-
-    let input_line = String::from("aAbcdefghijklmnop<^[[1;1H1A~1aaaa1");
-        
-    println!("{:?}", lr::parse_Screen(&input_line.to_string()) );
+    let lexer: lexer::Lexer = lexer::Lexer::new("\n\n\n");
+    println!("P{:?}", parser::ProgramParser::new().parse(lexer) );
 }

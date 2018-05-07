@@ -1,0 +1,35 @@
+use lexer;
+use ast;
+
+grammar;
+
+pub Program = <Statement*>;
+
+Statement: ast::Stmt = {
+    " " " " <Label> => ast::Stmt::Mark(<>),
+    " " "\t" <Label> => ast::Stmt::Call(<>),
+    " " "\n" <Label> => ast::Stmt::Jump(<>),
+    "\t" " " <Label> => ast::Stmt::Jz(<>),
+    "\t" "\t" <Label> => ast::Stmt::Js(<>),
+    "\t" "\n" => ast::Stmt::Return,
+    "\n" "\n" => ast::Stmt::Exit,
+};
+
+Label: String = {
+    <Digit*> "\n" => ast::label(<>), };
+
+Digit: u8 = {
+    " " => 0,
+    "\t" => 1,
+};
+
+extern {
+    type Location = usize;
+    type Error = lexer::LexicalError;
+
+    enum lexer::Tok {
+        " " => lexer::Tok::Space,
+        "\t" => lexer::Tok::Tab,
+        "\n" => lexer::Tok::Linefeed,
+    }
+}
