@@ -1,11 +1,6 @@
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Stmt {
-
-    Mark(String),
-    Call(String),
-    Jump(String), // Unconditional jump
-    Jz(String),   // Jump if zero
-    Js(String), // Jump if negative
+    Add,
 
     Return,
     Exit,

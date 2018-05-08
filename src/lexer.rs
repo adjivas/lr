@@ -2,21 +2,27 @@ use std::str::CharIndices;
 
 pub type Loc = usize;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Tok {
-    Space,
+    Add,
+    Div,
     Tab,
     Linefeed,
 }
 
 pub type Spanned<Tok, Loc, Error> = Result<(Loc, Tok, Loc), Error>;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum LexicalError {
     // Not possible
+    Sub,
+    // Not possible
+    Div,
+    // Other
+    Other,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Lexer<'input> {
     chars: CharIndices<'input>,
 }
@@ -33,12 +39,15 @@ impl<'input> Iterator for Lexer<'input> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             match self.chars.next() {
-                Some((i, ' ')) => return Some(Ok((i, Tok::Space, i+1))),
+                Some((_, '-')) => return Some(Err(LexicalError::Sub)),
+                Some((i, '+')) => return Some(Ok((i, Tok::Add, i+1))),
+                Some((i, '/')) => return Some(Ok((i, Tok::Div, i+1))),
+                Some((_, ' ')) => continue ,
                 Some((i, '\t')) => return Some(Ok((i, Tok::Tab, i+1))),
                 Some((i, '\n')) => return Some(Ok((i, Tok::Linefeed, i+1))),
 
                 None => return None, // End of file
-                _ => continue, // Comment; skip this character
+                _ => return Some(Err(LexicalError::Other)),
             }
         }
     }

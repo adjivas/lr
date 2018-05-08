@@ -1,34 +1,30 @@
 use lexer;
 use ast;
 
+use std::str::FromStr;
+
+use lexer::{Tok,Lexer,LexicalError};
+use lalrpop_util::ParseError;
+
 grammar;
 
 pub Program = <Statement*>;
 
 Statement: ast::Stmt = {
-    " " " " <Label> => ast::Stmt::Mark(<>),
-    " " "\t" <Label> => ast::Stmt::Call(<>),
-    " " "\n" <Label> => ast::Stmt::Jump(<>),
-    "\t" " " <Label> => ast::Stmt::Jz(<>),
-    "\t" "\t" <Label> => ast::Stmt::Js(<>),
+    Statement "/" =>? Err(ParseError::User { error: LexicalError::Other }),
+    "+" => ast::Stmt::Add,
     "\t" "\n" => ast::Stmt::Return,
     "\n" "\n" => ast::Stmt::Exit,
-};
-
-Label: String = {
-    <Digit*> "\n" => ast::label(<>), };
-
-Digit: u8 = {
-    " " => 0,
-    "\t" => 1,
+    ! =>? Err(ParseError::User { error: LexicalError::Other }),
 };
 
 extern {
-    type Location = usize;
+    type Location = lexer::Loc;
     type Error = lexer::LexicalError;
 
     enum lexer::Tok {
-        " " => lexer::Tok::Space,
+        "/" => lexer::Tok::Div,
+        "+" => lexer::Tok::Add,
         "\t" => lexer::Tok::Tab,
         "\n" => lexer::Tok::Linefeed,
     }
