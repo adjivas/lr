@@ -11,15 +11,15 @@ grammar;
 pub Program = <Statement*>;
 
 Statement: ast::Stmt = {
-    Statement "/" =>? Err(ParseError::User { error: LexicalError::Other }),
+    <l: @L> Statement "/" =>? Err(ParseError::User { error: LexicalError::Other2(l) }),
     "+" => ast::Stmt::Add,
     "\t" "\n" => ast::Stmt::Return,
     "\n" "\n" => ast::Stmt::Exit,
-    ! =>? Err(ParseError::User { error: LexicalError::Other }),
+//    <l: @L> <e: !> <r: @R> =>? Err(ParseError::User { error: LexicalError::Other2(l) }),
 };
 
 extern {
-    type Location = lexer::Loc;
+    type Location = lexer::Pos;
     type Error = lexer::LexicalError;
 
     enum lexer::Tok {
